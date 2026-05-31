@@ -1,8 +1,7 @@
 from pydantic import BaseModel
 
 MODEL = "claude-haiku-4-5"
-MAX_TOKENS = 4096
-MAX_TOOL_CALLS = 12
+MAX_TOOL_CALLS = 4
 
 class ChatRequest(BaseModel):
     topic: str
