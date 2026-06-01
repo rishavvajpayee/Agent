@@ -8,7 +8,8 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 
 def _get_conn():
-    return psycopg2.connect(DATABASE_URL, sslmode="require")
+    sslmode = os.environ.get("DATABASE_SSLMODE", "prefer")
+    return psycopg2.connect(DATABASE_URL, sslmode=sslmode)
 
 
 def _ensure_tables():
@@ -33,6 +34,19 @@ def _ensure_tables():
 
                 CREATE INDEX IF NOT EXISTS idx_chat_sessions_session_id
                     ON chat_sessions (session_id);
+
+                CREATE TABLE IF NOT EXISTS session_evidence (
+                    id          SERIAL PRIMARY KEY,
+                    session_id  TEXT NOT NULL,
+                    user_id     TEXT NOT NULL,
+                    source_url  TEXT NOT NULL,
+                    key_claim   TEXT NOT NULL,
+                    quote       TEXT NOT NULL,
+                    created_at  TIMESTAMPTZ DEFAULT NOW()
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_session_evidence_session_id
+                    ON session_evidence (session_id, user_id);
 
                 INSERT INTO users (stack_user_id, email)
                 VALUES ('dev-user', 'dev@local')

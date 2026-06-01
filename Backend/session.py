@@ -69,6 +69,62 @@ def session_id_available_for_user(session_id: str, user_id: str) -> bool:
     return row is None or row[0] == user_id
 
 
+def append_evidence(
+    session_id: str,
+    user_id: str,
+    source_url: str,
+    key_claim: str,
+    quote: str,
+) -> None:
+    with _get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO session_evidence
+                    (session_id, user_id, source_url, key_claim, quote)
+                VALUES (%s, %s, %s, %s, %s)
+                """,
+                (session_id, user_id, source_url, key_claim, quote),
+            )
+        conn.commit()
+
+
+def get_session_evidence(session_id: str, user_id: str) -> list[dict]:
+    with _get_conn() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT source_url, key_claim, quote, created_at
+                FROM session_evidence
+                WHERE session_id = %s AND user_id = %s
+                ORDER BY created_at ASC
+                """,
+                (session_id, user_id),
+            )
+            rows = cur.fetchall()
+    return [
+        {
+            "source_url": row["source_url"],
+            "key_claim": row["key_claim"],
+            "quote": row["quote"],
+            "created_at": row["created_at"],
+        }
+        for row in rows
+    ]
+
+
+def format_evidence_summary(evidence: list[dict]) -> str:
+    if not evidence:
+        return "(No evidence saved yet.)"
+    lines = []
+    for i, item in enumerate(evidence, start=1):
+        lines.append(
+            f"{i}. [{item['source_url']}] {item['key_claim']}\n"
+            f"   Quote: \"{item['quote']}\""
+        )
+    return "\n".join(lines)
+
+
 def append_message(session_id: str, message: str, role: str = "user", user_id: str = "dev-user"):
     with _get_conn() as conn:
         with conn.cursor() as cur:
@@ -84,10 +140,18 @@ def clear_history(session_id: str, user_id: str | None = None) -> int:
         with conn.cursor() as cur:
             if user_id:
                 cur.execute(
+                    "DELETE FROM session_evidence WHERE session_id = %s AND user_id = %s",
+                    (session_id, user_id),
+                )
+                cur.execute(
                     "DELETE FROM chat_sessions WHERE session_id = %s AND user_id = %s",
                     (session_id, user_id),
                 )
             else:
+                cur.execute(
+                    "DELETE FROM session_evidence WHERE session_id = %s",
+                    (session_id,),
+                )
                 cur.execute(
                     "DELETE FROM chat_sessions WHERE session_id = %s",
                     (session_id,),

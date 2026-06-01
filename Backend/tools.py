@@ -1,11 +1,27 @@
 import os
 import json
 import requests
+from contextvars import ContextVar
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from typing import Any
 
+from session import append_evidence
+
 load_dotenv()
+
+_tool_session_id: ContextVar[str | None] = ContextVar("tool_session_id", default=None)
+_tool_user_id: ContextVar[str | None] = ContextVar("tool_user_id", default=None)
+
+
+def set_tool_context(session_id: str, user_id: str) -> None:
+    _tool_session_id.set(session_id)
+    _tool_user_id.set(user_id)
+
+
+def clear_tool_context() -> None:
+    _tool_session_id.set(None)
+    _tool_user_id.set(None)
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 SERPER_URL = "https://google.serper.dev/search"
@@ -59,7 +75,7 @@ TOOL_DEFINITIONS = [
         "description": (
             "Save an important piece of evidence (a claim + supporting quote) "
             "from a source you have already fetched. "
-            "You MUST call this for every key finding before writing the final brief. "
+            "Save 3-6 of the strongest claims before writing the brief — not every minor detail. "
             "Never cite a URL you haven't retrieved via fetch_page."
         ),
         "input_schema": {
@@ -150,6 +166,11 @@ def fetch_page(url: str) -> str:
 
 
 def save_evidence(source_url: str, key_claim: str, quote: str) -> str:
+    session_id = _tool_session_id.get()
+    user_id = _tool_user_id.get()
+    if session_id and user_id:
+        append_evidence(session_id, user_id, source_url, key_claim, quote)
+
     return (
         f"[Evidence saved]\n"
         f"Source: {source_url}\n"
