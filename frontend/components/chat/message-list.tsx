@@ -2,30 +2,31 @@
 
 import { EvidencePanel } from "@/components/chat/evidence-panel";
 import { MessageBubble } from "@/components/chat/message-bubble";
+import { ResearchAlerts } from "@/components/chat/research-alert";
 import { ResearchStatus } from "@/components/chat/research-status";
-import { TruncatedBanner } from "@/components/chat/truncated-banner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { EvidenceItem, MessageItem } from "@/lib/api-types";
+import type { ResearchAlert } from "@/lib/chat-response-quality";
 import { useEffect, useRef } from "react";
 
 interface MessageListProps {
   messages: MessageItem[];
   isSending: boolean;
   evidence?: EvidenceItem[];
-  showTruncatedBanner?: boolean;
+  researchAlerts?: ResearchAlert[];
 }
 
 export function MessageList({
   messages,
   isSending,
   evidence = [],
-  showTruncatedBanner = false,
+  researchAlerts = [],
 }: MessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isSending]);
+  }, [messages, isSending, researchAlerts]);
 
   return (
     <ScrollArea className="h-full flex-1">
@@ -34,10 +35,14 @@ export function MessageList({
           <MessageBubble
             key={`${message.created_at}-${index}`}
             message={message}
+            researchAlerts={
+              message.role === "assistant" && index === messages.length - 1
+                ? researchAlerts
+                : undefined
+            }
           />
         ))}
-        {showTruncatedBanner ? <TruncatedBanner /> : null}
-        {evidence.length > 0 ? <EvidencePanel evidence={evidence} /> : null}
+        <EvidencePanel evidence={evidence} />
         {isSending ? <ResearchStatus /> : null}
         <div ref={bottomRef} />
       </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { ChatInput } from "@/components/chat/chat-input";
+import { useRotatingPlaceholder } from "@/hooks/use-rotating-placeholder";
+import { EXAMPLE_PROMPTS } from "@/lib/example-prompts";
 
 interface EmptyStateProps {
   onSend: (message: string) => void | Promise<void>;
@@ -8,6 +10,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ onSend, disabled }: EmptyStateProps) {
+  const placeholder = useRotatingPlaceholder(EXAMPLE_PROMPTS, 2000);
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 pb-16 pt-8">
       <div className="mb-10 max-w-xl text-center">
@@ -26,7 +30,7 @@ export function EmptyState({ onSend, disabled }: EmptyStateProps) {
         onSend={onSend}
         disabled={disabled}
         variant="centered"
-        placeholder="Compare vector databases for RAG in 2026…"
+        placeholder={placeholder}
       />
     </div>
   );

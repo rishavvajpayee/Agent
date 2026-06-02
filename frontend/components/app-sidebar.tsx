@@ -73,14 +73,14 @@ function SidebarUserMenu() {
             "hover:bg-sidebar-accent group-data-[collapsible=icon]:justify-center",
           )}
         >
-          <Avatar className="size-9">
+          <Avatar className="size-10">
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-            <p className="truncate text-sm font-medium">
+            <p className="truncate text-base font-medium">
               {user?.displayName || "Account"}
             </p>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="truncate text-sm text-muted-foreground">
               {user?.primaryEmail}
             </p>
           </div>
@@ -109,12 +109,12 @@ function SidebarDevUserMenu() {
         "group-data-[collapsible=icon]:justify-center",
       )}
     >
-      <Avatar className="size-9">
+      <Avatar className="size-10">
         <AvatarFallback>DU</AvatarFallback>
       </Avatar>
       <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-        <p className="truncate text-sm font-medium">Dev User</p>
-        <p className="truncate text-xs text-muted-foreground">dev@local</p>
+        <p className="truncate text-base font-medium">Dev User</p>
+        <p className="truncate text-sm text-muted-foreground">dev@local</p>
       </div>
     </div>
   );
@@ -132,22 +132,23 @@ export function AppSidebar() {
     <>
       <Sidebar collapsible="icon" className="border-r border-sidebar-border">
         <SidebarHeader className="gap-3 p-3">
-          <div className="flex items-center gap-2 px-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <span className="text-sm font-semibold">R</span>
+          <div className="flex items-center gap-3 px-1">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <span className="text-base font-semibold">R</span>
             </div>
             <div className="group-data-[collapsible=icon]:hidden">
-              <p className="font-heading text-sm font-medium">Research Agent</p>
-              <p className="text-xs text-muted-foreground">Evidence-backed answers</p>
+              <p className="font-heading text-base font-medium">Research Agent</p>
+              <p className="text-sm text-muted-foreground">Evidence-backed answers</p>
             </div>
           </div>
           <Button
             asChild
-            className="w-full justify-start gap-2 rounded-xl group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            size="lg"
+            className="w-full justify-start gap-2 rounded-xl text-base group-data-[collapsible=icon]:size-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
             variant={pathname === "/" ? "secondary" : "outline"}
           >
             <Link href="/">
-              <MessageSquarePlusIcon className="size-4" />
+              <MessageSquarePlusIcon className="size-5" />
               <span className="group-data-[collapsible=icon]:hidden">New chat</span>
             </Link>
           </Button>
@@ -155,17 +156,19 @@ export function AppSidebar() {
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Recent</SidebarGroupLabel>
+            <SidebarGroupLabel className="h-9 text-sm">
+              Recent
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {isLoading ? (
                   Array.from({ length: 4 }).map((_, index) => (
                     <SidebarMenuItem key={index}>
-                      <Skeleton className="mx-2 h-9 rounded-lg" />
+                      <Skeleton className="mx-2 h-11 rounded-lg" />
                     </SidebarMenuItem>
                   ))
                 ) : sessions.length === 0 ? (
-                  <div className="px-3 py-6 text-center text-sm text-muted-foreground group-data-[collapsible=icon]:hidden">
+                  <div className="px-3 py-6 text-center text-base text-muted-foreground group-data-[collapsible=icon]:hidden">
                     No conversations yet
                   </div>
                 ) : (
@@ -177,6 +180,7 @@ export function AppSidebar() {
                       <SidebarMenuItem key={session.session_id}>
                         <SidebarMenuButton
                           asChild
+                          size="lg"
                           isActive={isActive}
                           tooltip={session.title || "Untitled chat"}
                           className="rounded-lg"

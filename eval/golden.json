@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "defaults": {
+    "min_evidence": 3,
+    "min_brief_length": 400,
+    "max_hallucination_rate": 0.0
+  },
+  "cases": [
+    {
+      "id": "g01",
+      "topic": "What are the main benefits and risks of intermittent fasting for adults in 2024?",
+      "tags": ["health", "medium"]
+    },
+    {
+      "id": "g02",
+      "topic": "Compare PostgreSQL vs MongoDB for a session-based chat application.",
+      "tags": ["tech", "comparison"]
+    },
+    {
+      "id": "g03",
+      "topic": "Summarize the current state of EU AI Act enforcement as of 2025.",
+      "tags": ["policy", "narrow"]
+    },
+    {
+      "id": "g04",
+      "topic": "What is the market size and growth outlook for electric vehicle batteries?",
+      "tags": ["business", "medium"]
+    },
+    {
+      "id": "g05",
+      "topic": "How does retrieval-augmented generation (RAG) work and when should teams use it?",
+      "tags": ["tech", "explainer"]
+    },
+    {
+      "id": "g06",
+      "topic": "What are proven strategies for reducing cloud infrastructure costs on AWS?",
+      "tags": ["tech", "practical"]
+    },
+    {
+      "id": "g07",
+      "topic": "Evaluate remote work productivity studies published after 2022.",
+      "tags": ["work", "medium"]
+    },
+    {
+      "id": "g08",
+      "topic": "What are the security risks of LLM tool-calling agents that fetch arbitrary URLs?",
+      "tags": ["security", "narrow"]
+    },
+    {
+      "id": "g09",
+      "topic": "Compare leading open-source workflow engines for AI agents in 2025.",
+      "tags": ["tech", "comparison"]
+    },
+    {
+      "id": "g10",
+      "topic": "What is the evidence on blue-light glasses and sleep quality?",
+      "tags": ["health", "narrow"]
+    },
+    {
+      "id": "g11",
+      "topic": "How are central banks approaching digital currencies (CBDCs) in 2025?",
+      "tags": ["finance", "medium"]
+    },
+    {
+      "id": "g12",
+      "topic": "What are the environmental impacts of data center water usage?",
+      "tags": ["climate", "medium"]
+    },
+    {
+      "id": "g13",
+      "topic": "Summarize recent advances in mRNA vaccines beyond COVID-19.",
+      "tags": ["health", "medium"]
+    },
+    {
+      "id": "g14",
+      "topic": "What hiring trends exist for AI/ML engineers in 2025?",
+      "tags": ["work", "medium"]
+    },
+    {
+      "id": "g15",
+      "topic": "Compare Next.js App Router vs Pages Router for new projects in 2025.",
+      "tags": ["tech", "comparison"]
+    },
+    {
+      "id": "g16",
+      "topic": "What are best practices for evals of tool-using LLM agents?",
+      "tags": ["meta", "narrow"]
+    },
+    {
+      "id": "g17",
+      "topic": "How does the WHO define healthy diet guidelines updated in recent years?",
+      "tags": ["health", "policy"]
+    },
+    {
+      "id": "g18",
+      "topic": "What caused the 2023–2024 decline in venture funding for SaaS startups?",
+      "tags": ["business", "medium"]
+    },
+    {
+      "id": "g19",
+      "topic": "What is the status of nuclear fusion power commercialization?",
+      "tags": ["science", "medium"]
+    },
+    {
+      "id": "g20",
+      "topic": "How do rate limits and quotas protect LLM APIs at scale?",
+      "tags": ["tech", "practical"]
+    },
+    {
+      "id": "g21",
+      "topic": "What are privacy implications of browser-based AI assistants?",
+      "tags": ["privacy", "narrow"]
+    },
+    {
+      "id": "g22",
+      "topic": "Compare solar vs wind capacity additions globally in 2024.",
+      "tags": ["climate", "comparison"]
+    },
+    {
+      "id": "g23",
+      "topic": "What frameworks exist for responsible AI risk assessment?",
+      "tags": ["policy", "medium"]
+    },
+    {
+      "id": "g24",
+      "topic": "How effective are corporate net-zero commitments according to independent reviews?",
+      "tags": ["climate", "medium"]
+    },
+    {
+      "id": "g25",
+      "topic": "What is the adoption rate of Rust in systems programming vs Go?",
+      "tags": ["tech", "comparison"]
+    }
+  ]
+}

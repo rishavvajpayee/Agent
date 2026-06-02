@@ -3,11 +3,14 @@
 import { useAccessToken } from "@/lib/auth-token";
 import type { EvidenceItem, MessageItem } from "@/lib/api-types";
 import { ApiError, chat, getSession } from "@/lib/api";
+import { getChatErrorMessage } from "@/lib/api-errors";
 import {
-  filterDisplayMessages,
-  isBriefIncomplete,
-  isInternalMessage,
-} from "@/lib/chat-utils";
+  deriveResearchAlerts,
+  deriveResearchAlertsFromChat,
+  deriveResearchAlertsFromHistory,
+  type ResearchAlert,
+} from "@/lib/chat-response-quality";
+import { filterDisplayMessages } from "@/lib/chat-utils";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -23,13 +26,14 @@ export function useChat({ sessionId }: UseChatOptions) {
   const { refreshSessions } = useSessionsContext();
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [evidence, setEvidence] = useState<EvidenceItem[]>([]);
-  const [showTruncatedBanner, setShowTruncatedBanner] = useState(false);
+  const [researchAlerts, setResearchAlerts] = useState<ResearchAlert[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | undefined>(
     sessionId,
   );
   const [isLoadingHistory, setIsLoadingHistory] = useState(Boolean(sessionId));
   const [isSending, setIsSending] = useState(false);
   const [lastFailedTopic, setLastFailedTopic] = useState<string | null>(null);
+  const [showRetry, setShowRetry] = useState(false);
   const skipNextHistoryLoad = useRef(false);
 
   useEffect(() => {
@@ -40,7 +44,8 @@ export function useChat({ sessionId }: UseChatOptions) {
     if (!sessionId) {
       setMessages([]);
       setEvidence([]);
-      setShowTruncatedBanner(false);
+      setResearchAlerts([]);
+      setShowRetry(false);
       setIsLoadingHistory(false);
       return;
     }
@@ -60,27 +65,34 @@ export function useChat({ sessionId }: UseChatOptions) {
         const token = await getAccessToken();
         const data = await getSession(currentSessionId, token);
         if (!cancelled) {
-          setMessages(filterDisplayMessages(data.messages));
+          const displayMessages = filterDisplayMessages(data.messages);
+          setMessages(displayMessages);
           setEvidence(data.evidence ?? []);
           setActiveSessionId(data.session_id);
-          setShowTruncatedBanner(
-            data.messages.some((message) => isInternalMessage(message)),
+          const alerts = deriveResearchAlertsFromHistory(
+            data.messages,
+            data.evidence?.length ?? 0,
           );
+          setResearchAlerts(alerts);
+          setShowRetry(alerts.some((a) => a.retryable));
         }
       } catch (error) {
         if (!cancelled) {
-          if (error instanceof ApiError) {
-            if (error.status === 401) {
-              router.push("/login");
-              return;
-            }
-            if (error.status === 404) {
-              toast.error("Session not found");
-              router.push("/");
-              return;
-            }
+          const { message, redirectToLogin } = getChatErrorMessage(error);
+          if (error instanceof ApiError && error.status === 401) {
+            router.push("/login");
+            return;
           }
-          toast.error("Failed to load conversation");
+          if (error instanceof ApiError && error.status === 404) {
+            toast.error("Session not found");
+            router.push("/");
+            return;
+          }
+          if (redirectToLogin) {
+            router.push("/login");
+            return;
+          }
+          toast.error(message);
         }
       } finally {
         if (!cancelled) {
@@ -110,7 +122,8 @@ export function useChat({ sessionId }: UseChatOptions) {
       setMessages((current) => [...current, optimisticUserMessage]);
       setIsSending(true);
       setLastFailedTopic(null);
-      setShowTruncatedBanner(false);
+      setShowRetry(false);
+      setResearchAlerts([]);
 
       try {
         const token = await getAccessToken();
@@ -119,11 +132,16 @@ export function useChat({ sessionId }: UseChatOptions) {
           token,
         );
 
-        if (isBriefIncomplete(result.brief)) {
-          setLastFailedTopic(trimmed);
-          toast.error(
-            "The research brief looks incomplete. Try again with the same question.",
-          );
+        const alerts = deriveResearchAlertsFromChat(result);
+        setResearchAlerts(alerts);
+        setShowRetry(alerts.some((a) => a.retryable));
+
+        const warningAlert = alerts.find((a) => a.severity === "warning");
+        const errorAlert = alerts.find((a) => a.severity === "error");
+        if (errorAlert) {
+          toast.error(errorAlert.title);
+        } else if (warningAlert) {
+          toast.warning(warningAlert.title);
         }
 
         const assistantMessage: MessageItem = {
@@ -134,12 +152,32 @@ export function useChat({ sessionId }: UseChatOptions) {
 
         setMessages((current) => [...current, assistantMessage]);
         setActiveSessionId(result.session_id);
-        setShowTruncatedBanner(result.truncated);
         refreshSessions();
 
-        const sessionData = await getSession(result.session_id, token);
-        setEvidence(sessionData.evidence ?? []);
-        setMessages(filterDisplayMessages(sessionData.messages));
+        try {
+          const sessionData = await getSession(result.session_id, token);
+          setEvidence(sessionData.evidence ?? []);
+          setMessages(filterDisplayMessages(sessionData.messages));
+          setResearchAlerts(
+            deriveResearchAlertsFromHistory(
+              sessionData.messages,
+              sessionData.evidence?.length ?? 0,
+            ),
+          );
+        } catch {
+          setEvidence([]);
+          setResearchAlerts(
+            deriveResearchAlerts(result.brief, {
+              truncated: result.truncated,
+              evidence_count: result.evidence_count,
+            }),
+          );
+          if (result.evidence_count > 0) {
+            toast.warning(
+              "Brief saved, but the evidence panel could not be refreshed.",
+            );
+          }
+        }
 
         if (!sessionId) {
           skipNextHistoryLoad.current = true;
@@ -148,22 +186,23 @@ export function useChat({ sessionId }: UseChatOptions) {
       } catch (error) {
         setMessages((current) => current.slice(0, -1));
         setLastFailedTopic(trimmed);
+        setShowRetry(true);
+        setResearchAlerts([]);
 
-        if (error instanceof ApiError) {
-          if (error.status === 401) {
-            router.push("/login");
-            return;
-          }
-          if (error.status === 404) {
-            toast.error("Session expired. Starting a new conversation.");
-            router.push("/");
-            return;
-          }
-          toast.error(error.message || "Research failed");
+        const { message, redirectToLogin } = getChatErrorMessage(error);
+
+        if (redirectToLogin) {
+          router.push("/login");
           return;
         }
 
-        toast.error("Something went wrong. Please try again.");
+        if (error instanceof ApiError && error.status === 404) {
+          toast.error("Session expired. Starting a new conversation.");
+          router.push("/");
+          return;
+        }
+
+        toast.error(message);
       } finally {
         setIsSending(false);
       }
@@ -181,17 +220,23 @@ export function useChat({ sessionId }: UseChatOptions) {
   const retryLastMessage = useCallback(async () => {
     if (lastFailedTopic) {
       await sendMessage(lastFailedTopic);
+      return;
     }
-  }, [lastFailedTopic, sendMessage]);
+    const lastUser = [...messages].reverse().find((m) => m.role === "user");
+    if (lastUser) {
+      await sendMessage(lastUser.content);
+    }
+  }, [lastFailedTopic, messages, sendMessage]);
 
   return {
     messages,
     evidence,
-    showTruncatedBanner,
+    researchAlerts,
     isLoadingHistory,
     isSending,
     sendMessage,
     retryLastMessage,
     lastFailedTopic,
+    showRetry,
   };
 }

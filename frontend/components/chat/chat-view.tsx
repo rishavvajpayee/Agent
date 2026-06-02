@@ -2,9 +2,7 @@
 
 import { ChatInput } from "@/components/chat/chat-input";
 import { EmptyState } from "@/components/chat/empty-state";
-import { EvidencePanel } from "@/components/chat/evidence-panel";
 import { MessageList } from "@/components/chat/message-list";
-import { TruncatedBanner } from "@/components/chat/truncated-banner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useChat } from "@/hooks/use-chat";
@@ -17,12 +15,13 @@ export function ChatView({ sessionId }: ChatViewProps) {
   const {
     messages,
     evidence,
-    showTruncatedBanner,
+    researchAlerts,
     isLoadingHistory,
     isSending,
     sendMessage,
     retryLastMessage,
     lastFailedTopic,
+    showRetry,
   } = useChat({ sessionId });
 
   const isNewChat = !sessionId && messages.length === 0 && !isSending;
@@ -48,13 +47,15 @@ export function ChatView({ sessionId }: ChatViewProps) {
         messages={messages}
         isSending={isSending}
         evidence={evidence}
-        showTruncatedBanner={showTruncatedBanner}
+        researchAlerts={researchAlerts}
       />
       <div className="shrink-0 border-t bg-background/80 backdrop-blur-sm">
-        {lastFailedTopic ? (
+        {showRetry ? (
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 pt-3 md:px-8">
-            <p className="text-sm text-destructive">
-              The last request failed. You can retry with the same question.
+            <p className="text-sm text-muted-foreground">
+              {lastFailedTopic
+                ? "The last request failed. Retry with the same question."
+                : "This brief may need another attempt. Retry the last question."}
             </p>
             <Button
               variant="outline"

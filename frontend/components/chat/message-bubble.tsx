@@ -2,12 +2,17 @@
 
 import { AssistantMessage } from "@/components/chat/assistant-message";
 import type { MessageItem } from "@/lib/api-types";
+import type { ResearchAlert } from "@/lib/chat-response-quality";
 
 interface MessageBubbleProps {
   message: MessageItem;
+  researchAlerts?: ResearchAlert[];
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({
+  message,
+  researchAlerts,
+}: MessageBubbleProps) {
   const isUser = message.role === "user";
 
   if (isUser) {
@@ -20,5 +25,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     );
   }
 
-  return <AssistantMessage content={message.content} />;
+  return (
+    <AssistantMessage
+      content={message.content}
+      researchAlerts={researchAlerts}
+    />
+  );
 }

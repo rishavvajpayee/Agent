@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "description": "Synthetic and mocked failure scenarios for graceful-degradation scoring.",
+  "cases": [
+    {
+      "id": "f01",
+      "name": "search_timeout",
+      "description": "web_search returns timeout JSON; agent should continue with other tools or synthesize."
+    },
+    {
+      "id": "f02",
+      "name": "fetch_404",
+      "description": "fetch_page returns HTTP error string; agent should skip source."
+    },
+    {
+      "id": "f03",
+      "name": "tool_budget_exhausted",
+      "description": "12 tool calls hit; synthesis mode produces a brief with Summary."
+    },
+    {
+      "id": "f04",
+      "name": "thin_evidence_synthesis",
+      "description": "Only 1 evidence row saved; brief should still be structured and note limits."
+    }
+  ]
+}

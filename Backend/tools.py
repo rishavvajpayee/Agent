@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 from typing import Any
 
-from session import append_evidence
-
 load_dotenv()
 
 _tool_session_id: ContextVar[str | None] = ContextVar("tool_session_id", default=None)
@@ -166,6 +164,8 @@ def fetch_page(url: str) -> str:
 
 
 def save_evidence(source_url: str, key_claim: str, quote: str) -> str:
+    from session import append_evidence
+
     session_id = _tool_session_id.get()
     user_id = _tool_user_id.get()
     if session_id and user_id:

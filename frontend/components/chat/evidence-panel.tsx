@@ -11,7 +11,14 @@ interface EvidencePanelProps {
 export function EvidencePanel({ evidence }: EvidencePanelProps) {
   const [open, setOpen] = useState(false);
 
-  if (evidence.length === 0) return null;
+  if (evidence.length === 0) {
+    return (
+      <p className="max-w-3xl text-sm text-muted-foreground">
+        No saved evidence for this session yet. Evidence appears when the agent
+        calls save_evidence during research.
+      </p>
+    );
+  }
 
   return (
     <div className="max-w-3xl rounded-xl border bg-muted/40">

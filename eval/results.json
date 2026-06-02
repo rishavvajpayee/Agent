@@ -1,0 +1,62 @@
+{
+  "run_at": "2026-06-02T14:27:03.049459+00:00",
+  "mode": "quick",
+  "summary": {
+    "case_count": 3,
+    "task_completion_rate": 0.6666666666666666,
+    "grounding_pass_rate": 1.0,
+    "mean_hallucination_rate": 0.0,
+    "graceful_failure_rate": 1.0,
+    "truncation_rate": 0.3333333333333333
+  },
+  "results": [
+    {
+      "id": "g01",
+      "topic": "What are the main benefits and risks of intermittent fasting for adults in 2024?",
+      "session_id": "eval-g01-a84f0970",
+      "tool_calls": 12,
+      "tokens_used": 39296,
+      "truncated": true,
+      "evidence_count": 4,
+      "task_completion_passed": false,
+      "grounding_passed": true,
+      "hallucination_rate": 0.0,
+      "ungrounded_urls": [],
+      "graceful_failure_passed": true,
+      "missing_sections": [],
+      "brief_length": 4875
+    },
+    {
+      "id": "g02",
+      "topic": "Compare PostgreSQL vs MongoDB for a session-based chat application.",
+      "session_id": "eval-g02-186a17d2",
+      "tool_calls": 10,
+      "tokens_used": 21606,
+      "truncated": false,
+      "evidence_count": 4,
+      "task_completion_passed": true,
+      "grounding_passed": true,
+      "hallucination_rate": 0.0,
+      "ungrounded_urls": [],
+      "graceful_failure_passed": true,
+      "missing_sections": [],
+      "brief_length": 4060
+    },
+    {
+      "id": "g03",
+      "topic": "Summarize the current state of EU AI Act enforcement as of 2025.",
+      "session_id": "eval-g03-5e20dcb2",
+      "tool_calls": 11,
+      "tokens_used": 20550,
+      "truncated": false,
+      "evidence_count": 5,
+      "task_completion_passed": true,
+      "grounding_passed": true,
+      "hallucination_rate": 0.0,
+      "ungrounded_urls": [],
+      "graceful_failure_passed": true,
+      "missing_sections": [],
+      "brief_length": 3909
+    }
+  ]
+}

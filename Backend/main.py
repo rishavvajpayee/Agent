@@ -35,6 +35,7 @@ from session import (
 )
 from auth import get_current_user
 from prompt import SYSTEM_PROMPT
+from brief_quality import is_brief_complete
 from tools import TOOL_DEFINITIONS, run_tool, set_tool_context, clear_tool_context
 
 load_dotenv()
@@ -67,13 +68,6 @@ BRIEF_RETRY_PROMPT = (
 )
 
 SYNTHESIS_MAX_TOKENS = 8192
-
-
-def is_brief_complete(text: str) -> bool:
-    stripped = text.strip()
-    if len(stripped) < 200:
-        return False
-    return "## Summary" in stripped and "## Key Findings" in stripped
 
 
 def extract_text(response) -> str:
