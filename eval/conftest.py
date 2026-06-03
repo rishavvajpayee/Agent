@@ -30,8 +30,16 @@ _mock_cursor = MagicMock()
 _mock_conn.cursor.return_value.__enter__ = MagicMock(return_value=_mock_cursor)
 _mock_conn.cursor.return_value.__exit__ = MagicMock(return_value=False)
 
-_fake_db = types.ModuleType("db")
-_fake_db._get_conn = MagicMock(return_value=_mock_conn)
-_fake_db._ensure_tables = MagicMock()
-_fake_db.DATABASE_URL = os.environ["DATABASE_URL"]
-sys.modules["db"] = _fake_db
+class _FakeDbModule(types.ModuleType):
+    _get_conn: MagicMock
+    _ensure_tables: MagicMock
+    DATABASE_URL: str
+
+    def __init__(self, database_url: str, mock_conn: MagicMock) -> None:
+        super().__init__("db")
+        self._get_conn = MagicMock(return_value=mock_conn)
+        self._ensure_tables = MagicMock()
+        self.DATABASE_URL = database_url
+
+
+sys.modules["db"] = _FakeDbModule(os.environ["DATABASE_URL"], _mock_conn)
