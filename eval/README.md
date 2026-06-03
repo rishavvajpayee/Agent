@@ -19,7 +19,7 @@ Measures three quality dimensions for the research agent:
 ## Run
 
 ```bash
-pip install -r Backend/requirements.txt -r Backend/requirements-dev.txt
+pip install -r Backend/requirements.txt
 
 # Unit tests only (no API keys, no Postgres)
 python eval/runner.py --unit-only

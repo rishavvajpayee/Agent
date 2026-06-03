@@ -15,6 +15,6 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: |
-          pip install -r Backend/requirements.txt -r Backend/requirements-dev.txt
+          pip install -r Backend/requirements.txt
       - name: Run offline eval suite
         run: PYTHONPATH=Backend:eval python eval/runner.py --unit-only
